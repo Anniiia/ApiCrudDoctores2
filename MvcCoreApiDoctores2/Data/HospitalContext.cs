@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApiCrudDoctores2.Models;
+using Microsoft.EntityFrameworkCore;
 using MvcCoreApiDoctores2.Models;
 
 namespace MvcCoreApiDoctores2.Data
@@ -8,5 +9,6 @@ namespace MvcCoreApiDoctores2.Data
         public HospitalContext(DbContextOptions<HospitalContext> options): base(options) { }
 
         public DbSet<Doctor> Doctores { get; set; }
+        public DbSet<Usuario> Usuarios { get; set; }
     }
 }

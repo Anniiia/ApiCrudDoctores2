@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ApiCrudDoctores2.Models;
+using Microsoft.EntityFrameworkCore;
 using MvcCoreApiDoctores2.Data;
 using MvcCoreApiDoctores2.Models;
 
@@ -11,6 +12,44 @@ namespace MvcCoreApiDoctores2.Repositories
         public RepositoryDoctores(HospitalContext context)
         {
             this.context = context;
+        }
+
+        public async Task RegisterUsuarioAsync(string email, string password, string nombre)
+        {
+            Usuario user = new Usuario();
+            user.IdUsuairo = await this.GetMaxIdUsuarioAsync();
+            user.Email = email;
+            user.Password =password;
+            user.Nombre = nombre;
+            this.context.Usuarios.Add(user);
+            await this.context.SaveChangesAsync();
+
+        }
+
+        private async Task<int> GetMaxIdUsuarioAsync()
+        {
+            if (this.context.Usuarios.Count() == 0)
+            {
+                return 1;
+            }
+            else
+            {
+                return await this.context.Usuarios.MaxAsync(z => z.IdUsuairo) + 1;
+            }
+        }
+        public async Task<Usuario> FindUsuarioAsync(int idUsuario)
+        {
+            return await this.context.Usuarios.FirstOrDefaultAsync(x => x.IdUsuairo == idUsuario);
+        }
+
+        //public async Task<Usuario> Perefil()
+        //{
+        //    return null;
+        //}
+
+        public async Task<Usuario> LoginUsuarioAsync(string email, string password) 
+        {
+            return await this.context.Usuarios.Where(x => x.Email == email && x.Password == password).FirstOrDefaultAsync();
         }
 
         public async Task<List<Doctor>> GetDoctoresAsync()

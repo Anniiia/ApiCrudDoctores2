@@ -1,7 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using ApiCrudDoctores2.Helpers;
+using ApiCrudDoctores2.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using MvcClienteApiCrudDoctores2.Models;
 using MvcCoreApiDoctores2.Models;
 using MvcCoreApiDoctores2.Repositories;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ApiCrudDoctores2.Controllers
 {
@@ -11,10 +17,24 @@ namespace ApiCrudDoctores2.Controllers
     {
         private RepositoryDoctores repo;
 
+
         public DoctoresController(RepositoryDoctores repo) {
             this.repo = repo;
+
         }
 
+        [HttpPost]
+        [Route("[action]")]
+
+        public async Task<ActionResult> InsertUsuario(RegistroModel model)
+        {
+            await this.repo.RegisterUsuarioAsync(model.Email, model.Password, model.Nombre);
+
+            return Ok();
+
+        }
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<Doctor>>> GetDoctores()
         {
