@@ -1,5 +1,7 @@
 using ApiCrudDoctores2.Helpers;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using MvcCoreApiDoctores2.Data;
 using MvcCoreApiDoctores2.Repositories;
@@ -10,10 +12,24 @@ var builder = WebApplication.CreateBuilder(args);
 HelperActionServicesOAuth helper = new HelperActionServicesOAuth(builder.Configuration);
 builder.Services.AddSingleton<HelperActionServicesOAuth>(helper);
 builder.Services.AddAuthentication(helper.GetAuthenticateSchema()).AddJwtBearer(helper.GetJwtBearerOptions());
+builder.Services.AddAzureClients(factory =>
+{
+    factory.AddSecretClient
+    (builder.Configuration.GetSection("KeyVault"));
+});
+
+//DEBEMOS PODER RECUPERAR UN OBJETO INYECTADO EN CLASES 
+//QUE NO TIENEN CONSTRUCTOR
+SecretClient secretClient =
+builder.Services.BuildServiceProvider().GetService<SecretClient>();
+KeyVaultSecret secret =
+    await secretClient.GetSecretAsync("SqlAzure");
+string connectionString = secret.Value;
+
 
 
 builder.Services.AddTransient<RepositoryDoctores>();
-string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
+//string connectionString = builder.Configuration.GetConnectionString("SqlAzure");
 builder.Services.AddDbContext<HospitalContext>(options => options.UseSqlServer(connectionString));
 
 
